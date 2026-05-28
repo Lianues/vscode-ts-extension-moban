@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import { MainPanel } from '../panels/MainPanel';
 
-const SIDEBAR_ENTRY_VIEW_ID = 'vueTsBridgeEntryView';
+const SIDEBAR_ENTRY_VIEW_ID = 'vue-ts-bridge-entry-view';
 const OPEN_PANEL_MESSAGE = 'openPanel';
 
 export function registerSidebarEntryView(context: vscode.ExtensionContext): void {

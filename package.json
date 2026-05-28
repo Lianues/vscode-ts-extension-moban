@@ -23,16 +23,16 @@
     "viewsContainers": {
       "activitybar": [
         {
-          "id": "vueTsBridgeSidebar",
+          "id": "vue-ts-bridge-sidebar",
           "title": "Vue TS Bridge",
           "icon": "assets/icons/activity-bar.svg"
         }
       ]
     },
     "views": {
-      "vueTsBridgeSidebar": [
+      "vue-ts-bridge-sidebar": [
         {
-          "id": "vueTsBridgeEntryView",
+          "id": "vue-ts-bridge-entry-view",
           "name": "插件入口",
           "type": "webview"
         }
