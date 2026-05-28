@@ -11,9 +11,6 @@
   "categories": [
     "Other"
   ],
-  "activationEvents": [
-    "onCommand:vscode-vue-ts-bridge-starter.openPanel"
-  ],
   "main": "./dist/extension/extension.js",
   "contributes": {
     "commands": [
@@ -22,13 +19,31 @@
         "title": "Vue TS Bridge: Open Panel",
         "category": "Vue TS Bridge"
       }
-    ]
+    ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "vueTsBridgeSidebar",
+          "title": "Vue TS Bridge",
+          "icon": "assets/icons/activity-bar.svg"
+        }
+      ]
+    },
+    "views": {
+      "vueTsBridgeSidebar": [
+        {
+          "id": "vueTsBridgeEntryView",
+          "name": "插件入口",
+          "type": "webview"
+        }
+      ]
+    }
   },
   "scripts": {
     "compile": "tsc -p tsconfig.json",
     "watch": "tsc -watch -p tsconfig.json",
     "build:webview": "vite build",
-    "dev:webview": "vite --host 127.0.0.1",
+    "dev:webview": "vite --host 127.0.0.1 --port 31773 --strictPort",
     "build": "npm run compile && npm run build:webview",
     "typecheck:webview": "vue-tsc -p tsconfig.webview.json --noEmit",
     "check": "npm run compile && npm run typecheck:webview",

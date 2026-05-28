@@ -17,13 +17,12 @@
     "types": [
       "vite/client"
     ],
-    "baseUrl": ".",
     "paths": {
       "@webview/*": [
-        "webview/src/*"
+        "./webview/src/*"
       ],
       "@bridge/*": [
-        "src/bridge/*"
+        "./src/bridge/*"
       ]
     }
   },

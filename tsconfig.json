@@ -12,11 +12,9 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "moduleResolution": "Node",
-    "baseUrl": ".",
     "paths": {
       "@bridge/*": [
-        "src/bridge/*"
+        "./src/bridge/*"
       ]
     },
     "types": [

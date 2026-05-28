@@ -85,10 +85,49 @@ npm run build
 Vue TS Bridge: Open Panel
 ```
 
+## 侧边栏入口
+
+扩展已经在 VS Code 左侧 Activity Bar 注册了一个 `Vue TS Bridge` 图标入口，图标资源位于：
+
+```text
+assets/icons/activity-bar.svg
+assets/icons/panel-entry.svg
+```
+
+点击左侧图标后，会显示一个 `插件入口` 侧边栏视图，里面有一个“打开主面板”按钮。点击按钮会打开原来的 Vue Webview 主面板。
+
+
+## 调试模式
+
+运行和调试面板中已经注册了两个配置：
+
+### 1. `Run Extension - Webview HMR`
+
+用于日常开发调试：
+
+- 后端 TS 使用 `tsc -watch` 自动编译到 `dist/extension`。
+- Vue Webview 使用 Vite dev server：`http://127.0.0.1:31773`。
+- Webview 会通过环境变量 `VSCODE_WEBVIEW_DEV_SERVER` 加载 Vite dev server，从而支持前端热更新。
+
+注意：VS Code Extension Host 本身不能像前端一样完全热更新。后端代码修改后会自动编译，但通常需要在调试窗口中执行 `Developer: Reload Window`，或重启当前调试会话后才会生效。
+
+### 2. `Run Extension - Build`
+
+用于接近发布态的调试：
+
+- 先执行 `npm run build`。
+- 后端加载 `dist/extension/extension.js`。
+- Webview 加载 `dist/webview` 中的打包产物。
+
+如果只是修改 Vue 页面，优先使用 `Run Extension - Webview HMR`；如果要验证最终打包效果，使用 `Run Extension - Build`。
+
+
 ## 常用脚本
 
 ```bash
 npm run compile          # 编译扩展后端 TS
+npm run watch            # 监听并编译扩展后端 TS
+npm run dev:webview      # 启动 Vue Webview Vite dev server
 npm run build:webview    # 构建 Vue Webview
 npm run build            # 构建后端 + 前端
 npm run typecheck:webview # 检查 Vue/前端 TS 类型

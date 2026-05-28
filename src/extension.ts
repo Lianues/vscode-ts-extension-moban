@@ -1,8 +1,10 @@
 import * as vscode from 'vscode';
 import { registerCommands } from './backend/commands/registerCommands';
+import { registerSidebarEntryView } from './backend/views/SidebarEntryView';
 
 export function activate(context: vscode.ExtensionContext): void {
   registerCommands(context);
+  registerSidebarEntryView(context);
 
   console.log('VSCode Vue TS Bridge Starter is active.');
 }

@@ -26,7 +26,8 @@ export class MainPanel {
       {
         enableScripts: true,
         retainContextWhenHidden: true,
-        localResourceRoots: [vscode.Uri.joinPath(extensionUri, 'dist', 'webview')]
+        localResourceRoots: [vscode.Uri.joinPath(extensionUri, 'dist', 'webview')],
+        portMapping: [{ webviewPort: 31773, extensionHostPort: 31773 }]
       }
     );
 

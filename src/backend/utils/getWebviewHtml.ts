@@ -1,11 +1,18 @@
 import * as fs from 'node:fs';
 import * as vscode from 'vscode';
 
+const WEBVIEW_DEV_SERVER_ENV = 'VSCODE_WEBVIEW_DEV_SERVER';
+
 export function getWebviewHtml(webview: vscode.Webview, extensionUri: vscode.Uri): string {
   const webviewDistUri = vscode.Uri.joinPath(extensionUri, 'dist', 'webview');
   const indexUri = vscode.Uri.joinPath(webviewDistUri, 'index.html');
   const nonce = getNonce();
-  const csp = createContentSecurityPolicy(webview, nonce);
+  const devServerUrl = getWebviewDevServerUrl();
+  const csp = createContentSecurityPolicy(webview, nonce, devServerUrl);
+
+  if (devServerUrl) {
+    return getDevServerHtml(devServerUrl, csp, nonce);
+  }
 
   if (!fs.existsSync(indexUri.fsPath)) {
     return getMissingBuildHtml(csp);
@@ -36,14 +43,64 @@ export function getWebviewHtml(webview: vscode.Webview, extensionUri: vscode.Uri
   return html.replace('<head>', `<head>\n    ${cspMeta}`);
 }
 
-function createContentSecurityPolicy(webview: vscode.Webview, nonce: string): string {
+function createContentSecurityPolicy(
+  webview: vscode.Webview,
+  nonce: string,
+  devServerUrl?: string
+): string {
+  const devHttpSource = devServerUrl;
+  const devWebSocketSource = devServerUrl ? toWebSocketOrigin(devServerUrl) : undefined;
+  const devSources = [devHttpSource, devWebSocketSource].filter(Boolean).join(' ');
+
   return [
     `default-src 'none';`,
-    `img-src ${webview.cspSource} https: data:;`,
-    `font-src ${webview.cspSource};`,
-    `style-src ${webview.cspSource} 'unsafe-inline';`,
-    `script-src 'nonce-${nonce}';`
-  ].join(' ');
+    `img-src ${webview.cspSource} https: data:${devHttpSource ? ` ${devHttpSource}` : ''};`,
+    `font-src ${webview.cspSource}${devHttpSource ? ` ${devHttpSource}` : ''};`,
+    `style-src ${webview.cspSource}${devHttpSource ? ` ${devHttpSource}` : ''} 'unsafe-inline';`,
+    `script-src 'nonce-${nonce}'${devHttpSource ? ` ${devHttpSource}` : ''};`,
+    devSources ? `connect-src ${webview.cspSource} ${devSources};` : ''
+  ]
+    .filter(Boolean)
+    .join(' ');
+}
+
+function getWebviewDevServerUrl(): string | undefined {
+  const rawUrl = process.env[WEBVIEW_DEV_SERVER_ENV]?.trim();
+
+  if (!rawUrl) {
+    return undefined;
+  }
+
+  try {
+    return new URL(rawUrl).origin;
+  } catch {
+    console.warn(`Invalid ${WEBVIEW_DEV_SERVER_ENV}: ${rawUrl}`);
+    return undefined;
+  }
+}
+
+function toWebSocketOrigin(httpOrigin: string): string {
+  const url = new URL(httpOrigin);
+  url.protocol = url.protocol === 'https:' ? 'wss:' : 'ws:';
+
+  return url.origin;
+}
+
+function getDevServerHtml(devServerUrl: string, csp: string, nonce: string): string {
+  return /* html */ `<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="Content-Security-Policy" content="${csp}">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vue TS Bridge - HMR</title>
+</head>
+<body>
+  <div id="app"></div>
+  <script type="module" nonce="${nonce}" src="${devServerUrl}/@vite/client"></script>
+  <script type="module" nonce="${nonce}" src="${devServerUrl}/src/main.ts"></script>
+</body>
+</html>`;
 }
 
 function getMissingBuildHtml(csp: string): string {
